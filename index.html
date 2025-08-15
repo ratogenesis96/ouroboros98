@@ -3,50 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Викторина</title>
+    <title>Тест на знание JavaScript</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="quiz-container">
-        <h1>Тест на знание JavaScript</h1>
-        <div id="question-container" class="hide">
-            <div id="question">Вопрос</div>
-            <div id="answer-buttons" class="btn-grid">
-                <!-- Кнопки будут добавляться динамически -->
+    <div class="container">
+        <div class="quiz-container" id="quiz-main">
+            <h1>Тест на знание JavaScript</h1>
+            <div id="question-container" class="hide">
+                <div id="question">Вопрос</div>
+                <div id="answer-buttons" class="btn-grid"></div>
+            </div>
+            <div class="controls">
+                <button id="start-btn" class="btn start-btn">Начать</button>
+                <button id="next-btn" class="btn next-btn hide">Следующий</button>
+                <button id="admin-btn" class="btn admin-btn">Режим редактора</button>
+            </div>
+            <div id="results" class="hide"></div>
+        </div>
+
+        <div id="admin-panel" class="admin-panel hide">
+            <div class="admin-container">
+                <h2>Редактор вопросов</h2>
+                
+                <div class="form-group">
+                    <label for="question-text">Вопрос:</label>
+                    <textarea id="question-text" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Варианты ответов:</label>
+                    <div id="answer-inputs"></div>
+                    <button id="add-answer" class="btn add-answer-btn">+ Добавить ответ</button>
+                </div>
+                
+                <div class="form-actions">
+                    <button id="save-question" class="btn primary-btn">Сохранить вопрос</button>
+                    <button id="cancel-edit" class="btn secondary-btn">Отмена</button>
+                </div>
+                
+                <div class="saved-questions">
+                    <h3>Сохраненные вопросы</h3>
+                    <div id="questions-list" class="questions-list"></div>
+                </div>
             </div>
         </div>
-        <div class="controls">
-            <button id="start-btn" class="start-btn btn">Начать</button>
-            <button id="next-btn" class="next-btn btn hide">Следующий</button>
-            <button id="admin-btn" class="btn admin-btn">Режим редактора</button>
-        </div>
-        <div id="results" class="hide"></div>
     </div>
 
     <script src="questions.js"></script>
     <script src="quiz.js"></script>
-    <div id="admin-panel" class="admin-panel hide">
-    <h2>Редактор вопросов</h2>
-    <div class="form-group">
-        <label for="question-text">Вопрос:</label>
-        <input type="text" id="question-text" class="form-control">
-    </div>
-    <div class="form-group">
-        <label>Варианты ответов:</label>
-        <div id="answer-inputs">
-            <!-- Ответы будут добавляться динамически -->
-        </div>
-        <button id="add-answer" class="btn">Добавить ответ</button>
-    </div>
-    <div class="form-group">
-        <button id="save-question" class="btn">Сохранить вопрос</button>
-        <button id="cancel-edit" class="btn">Отмена</button>
-    </div>
-    <div id="saved-questions">
-        <h3>Сохраненные вопросы</h3>
-        <ul id="questions-list"></ul>
-    </div>
-</div>
 </body>
 </html>
-
