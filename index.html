@@ -1,15 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Название вашего проекта</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Викторина</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Добро пожаловать!</h1>
-    <button id="myButton">Нажми меня</button>
-    
-    <script src="script.js"></script>
+    <div class="quiz-container">
+        <h1>Тест на знание JavaScript</h1>
+        <div id="question-container" class="hide">
+            <div id="question">Вопрос</div>
+            <div id="answer-buttons" class="btn-grid">
+                <!-- Кнопки будут добавляться динамически -->
+            </div>
+        </div>
+        <div class="controls">
+            <button id="start-btn" class="start-btn btn">Начать</button>
+            <button id="next-btn" class="next-btn btn hide">Следующий</button>
+        </div>
+        <div id="results" class="hide"></div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="quiz.js"></script>
 </body>
 </html>
