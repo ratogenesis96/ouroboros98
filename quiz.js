@@ -4,6 +4,14 @@ const questionContainerElement = document.getElementById('question-container');
 const questionElement = document.getElementById('question');
 const answerButtonsElement = document.getElementById('answer-buttons');
 const resultsElement = document.getElementById('results');
+const adminButton = document.getElementById('admin-btn');
+const adminPanel = document.getElementById('admin-panel');
+const questionTextInput = document.getElementById('question-text');
+const answerInputsContainer = document.getElementById('answer-inputs');
+const addAnswerButton = document.getElementById('add-answer');
+const saveQuestionButton = document.getElementById('save-question');
+const cancelEditButton = document.getElementById('cancel-edit');
+const questionsList = document.getElementById('questions-list');
 
 let shuffledQuestions, currentQuestionIndex;
 let score = 0;
@@ -91,3 +99,131 @@ function showResults() {
         <button onclick="location.reload()" class="btn">Пройти снова</button>
     `;
 }
+
+adminButton.addEventListener('click', toggleAdminPanel);
+addAnswerButton.addEventListener('click', addAnswerInput);
+saveQuestionButton.addEventListener('click', saveQuestion);
+cancelEditButton.addEventListener('click', toggleAdminPanel);
+
+function toggleAdminPanel() {
+    adminPanel.classList.toggle('hide');
+    if (!adminPanel.classList.contains('hide')) {
+        renderQuestionsList();
+    }
+}
+
+// Функция добавления поля для ответа
+function addAnswerInput() {
+    const answerId = Date.now();
+    const answerDiv = document.createElement('div');
+    answerDiv.className = 'answer-item';
+    answerDiv.innerHTML = `
+        <input type="text" class="form-control answer-text" placeholder="Текст ответа">
+        <input type="checkbox" class="answer-correct" id="correct-${answerId}">
+        <label for="correct-${answerId}">Правильный</label>
+        <button class="btn delete-answer">×</button>
+    `;
+    answerInputsContainer.appendChild(answerDiv);
+    
+    // Добавляем обработчик удаления ответа
+    answerDiv.querySelector('.delete-answer').addEventListener('click', function() {
+        answerInputsContainer.removeChild(answerDiv);
+    });
+}
+
+// Функция сохранения вопроса
+function saveQuestion() {
+    const questionText = questionTextInput.value.trim();
+    const answerElements = answerInputsContainer.querySelectorAll('.answer-item');
+    
+    if (!questionText || answerElements.length === 0) {
+        alert('Заполните вопрос и добавьте хотя бы один ответ!');
+        return;
+    }
+    
+    const answers = [];
+    answerElements.forEach(el => {
+        const text = el.querySelector('.answer-text').value.trim();
+        const correct = el.querySelector('.answer-correct').checked;
+        if (text) {
+            answers.push({ text, correct });
+        }
+    });
+    
+    if (answers.length === 0) {
+        alert('Добавьте хотя бы один ответ!');
+        return;
+    }
+    
+    // Проверяем, что есть хотя бы один правильный ответ
+    if (!answers.some(answer => answer.correct)) {
+        alert('Укажите хотя бы один правильный ответ!');
+        return;
+    }
+    
+    // Добавляем новый вопрос
+    const newQuestion = {
+        question: questionText,
+        answers: answers
+    };
+    
+    questions.push(newQuestion);
+    
+    // Очищаем форму
+    questionTextInput.value = '';
+    answerInputsContainer.innerHTML = '';
+    
+    // Обновляем список вопросов
+    renderQuestionsList();
+    
+    // Сохраняем в localStorage
+    saveQuestionsToLocalStorage();
+    
+    alert('Вопрос сохранен!');
+}
+
+// Функция отображения списка вопросов
+function renderQuestionsList() {
+    questionsList.innerHTML = '';
+    questions.forEach((question, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${index + 1}. ${question.question}</span>
+            <span class="delete-question" data-index="${index}">Удалить</span>
+        `;
+        questionsList.appendChild(li);
+    });
+    
+    // Добавляем обработчики удаления вопросов
+    document.querySelectorAll('.delete-question').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            deleteQuestion(index);
+        });
+    });
+}
+
+// Функция удаления вопроса
+function deleteQuestion(index) {
+    if (confirm('Вы уверены, что хотите удалить этот вопрос?')) {
+        questions.splice(index, 1);
+        renderQuestionsList();
+        saveQuestionsToLocalStorage();
+    }
+}
+
+// Сохранение вопросов в localStorage
+function saveQuestionsToLocalStorage() {
+    localStorage.setItem('quiz-questions', JSON.stringify(questions));
+}
+
+// Загрузка вопросов из localStorage при загрузке страницы
+function loadQuestionsFromLocalStorage() {
+    const savedQuestions = localStorage.getItem('quiz-questions');
+    if (savedQuestions) {
+        questions = JSON.parse(savedQuestions);
+    }
+}
+
+// Вызываем функцию загрузки при старте
+document.addEventListener('DOMContentLoaded', loadQuestionsFromLocalStorage);
