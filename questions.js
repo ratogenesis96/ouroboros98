@@ -20,3 +20,14 @@ let questions = [
     },
     // Добавьте больше вопросов
 ];
+
+if (localStorage.getItem('quiz-questions')) {
+    try {
+        const saved = JSON.parse(localStorage.getItem('quiz-questions'));
+        if (Array.isArray(saved) && saved.length > 0) {
+            questions = saved;
+        }
+    } catch (e) {
+        console.error("Ошибка загрузки вопросов:", e);
+    }
+}
