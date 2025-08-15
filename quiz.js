@@ -198,22 +198,33 @@ function saveQuestion() {
 // Функция отображения списка вопросов
 function renderQuestionsList() {
     questionsList.innerHTML = '';
+    
+    if (questions.length === 0) {
+        questionsList.innerHTML = '<p>Пока нет сохраненных вопросов</p>';
+        return;
+    }
+    
     questions.forEach((question, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span>${index + 1}. ${question.question}</span>
-            <span class="delete-question" data-index="${index}">Удалить</span>
+        const questionItem = document.createElement('div');
+        questionItem.className = 'question-item';
+        questionItem.innerHTML = `
+            <div class="question-text">${index + 1}. ${question.question}</div>
+            <div class="delete-question" data-index="${index}">Удалить</div>
         `;
-        questionsList.appendChild(li);
+        questionsList.appendChild(questionItem);
     });
     
-    setupQuestionEdit();
-    
+    // Добавляем обработчики удаления вопросов
     document.querySelectorAll('.delete-question').forEach(btn => {
         btn.addEventListener('click', function() {
             const index = parseInt(this.getAttribute('data-index'));
             deleteQuestion(index);
         });
+    });
+    
+    // Добавляем возможность редактирования при клике на вопрос
+    document.querySelectorAll('.question-text').forEach((el, index) => {
+        el.addEventListener('click', () => editQuestion(index));
     });
 }
 
