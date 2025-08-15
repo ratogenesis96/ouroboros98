@@ -13,6 +13,19 @@ const saveQuestionButton = document.getElementById('save-question');
 const cancelEditButton = document.getElementById('cancel-edit');
 const questionsList = document.getElementById('questions-list');
 
+// Добавьте в начало quiz.js
+const ADMIN_PASSWORD = "pizza"; // Замените на свой пароль
+
+// Обновите обработчик кнопки администратора
+adminButton.addEventListener('click', function() {
+    const password = prompt('Введите пароль для доступа к панели администратора:');
+    if (password === ADMIN_PASSWORD) {
+        toggleAdminPanel();
+    } else if (password !== null) {
+        alert('Неверный пароль!');
+    }
+});
+
 let shuffledQuestions, currentQuestionIndex;
 let score = 0;
 
