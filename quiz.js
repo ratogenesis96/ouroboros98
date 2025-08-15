@@ -1,3 +1,7 @@
+console.log('Script loaded');
+console.log('Admin button:', document.getElementById('admin-btn'));
+console.log('Admin panel:', document.getElementById('admin-panel'));
+
 const startButton = document.getElementById('start-btn');
 const nextButton = document.getElementById('next-btn');
 const questionContainerElement = document.getElementById('question-container');
