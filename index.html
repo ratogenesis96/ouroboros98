@@ -18,11 +18,35 @@
         <div class="controls">
             <button id="start-btn" class="start-btn btn">Начать</button>
             <button id="next-btn" class="next-btn btn hide">Следующий</button>
+            <button id="admin-btn" class="btn admin-btn">Режим редактора</button>
         </div>
         <div id="results" class="hide"></div>
     </div>
 
     <script src="questions.js"></script>
     <script src="quiz.js"></script>
+    <div id="admin-panel" class="admin-panel hide">
+    <h2>Редактор вопросов</h2>
+    <div class="form-group">
+        <label for="question-text">Вопрос:</label>
+        <input type="text" id="question-text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Варианты ответов:</label>
+        <div id="answer-inputs">
+            <!-- Ответы будут добавляться динамически -->
+        </div>
+        <button id="add-answer" class="btn">Добавить ответ</button>
+    </div>
+    <div class="form-group">
+        <button id="save-question" class="btn">Сохранить вопрос</button>
+        <button id="cancel-edit" class="btn">Отмена</button>
+    </div>
+    <div id="saved-questions">
+        <h3>Сохраненные вопросы</h3>
+        <ul id="questions-list"></ul>
+    </div>
+</div>
 </body>
 </html>
+
