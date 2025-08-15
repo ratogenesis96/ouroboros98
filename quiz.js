@@ -207,7 +207,8 @@ function renderQuestionsList() {
         questionsList.appendChild(li);
     });
     
-    // Добавляем обработчики удаления вопросов
+    setupQuestionEdit();
+    
     document.querySelectorAll('.delete-question').forEach(btn => {
         btn.addEventListener('click', function() {
             const index = parseInt(this.getAttribute('data-index'));
@@ -236,6 +237,37 @@ function loadQuestionsFromLocalStorage() {
     if (savedQuestions) {
         questions = JSON.parse(savedQuestions);
     }
+}
+
+function setupQuestionEdit() {
+    document.querySelectorAll('#questions-list li span:first-child').forEach((span, index) => {
+        span.addEventListener('click', function() {
+            editQuestion(index);
+        });
+    });
+}
+
+function editQuestion(index) {
+    const question = questions[index];
+    questionTextInput.value = question.question;
+    answerInputsContainer.innerHTML = '';
+    
+    question.answers.forEach(answer => {
+        addAnswerInput();
+        const lastAnswer = answerInputsContainer.lastChild;
+        lastAnswer.querySelector('.answer-text').value = answer.text;
+        lastAnswer.querySelector('.answer-correct').checked = answer.correct;
+    });
+    
+    // Удаляем старый вопрос при сохранении
+    saveQuestionButton.onclick = function() {
+        questions.splice(index, 1);
+        saveQuestion();
+        saveQuestionButton.onclick = saveQuestion; // Возвращаем оригинальный обработчик
+    };
+    
+    // Прокручиваем к форме
+    questionTextInput.focus();
 }
 
 // Вызываем функцию загрузки при старте
