@@ -72,25 +72,36 @@ function resetState() {
     while (answerButtonsElement.firstChild) {
         answerButtonsElement.removeChild(answerButtonsElement.firstChild);
     }
+    // Включаем кнопки для нового вопроса
+    Array.from(answerButtonsElement.children).forEach(button => {
+        button.disabled = false;
+    });
 }
 
 function selectAnswer(e) {
     const selectedButton = e.target;
     const correct = selectedButton.dataset.correct;
     
+    // Добавляем анимацию исчезновения
+    questionContainerElement.classList.add('fade-out');
+    
     Array.from(answerButtonsElement.children).forEach(button => {
         setStatusClass(button, button.dataset.correct);
+        button.disabled = true;
     });
     
-    if (correct) {
-        score++;
-    }
+    if (correct) score++;
     
-    if (shuffledQuestions.length > currentQuestionIndex + 1) {
-        nextButton.classList.remove('hide');
-    } else {
-        showResults();
-    }
+    setTimeout(() => {
+        questionContainerElement.classList.remove('fade-out');
+        
+        if (shuffledQuestions.length > currentQuestionIndex + 1) {
+            currentQuestionIndex++;
+            setNextQuestion();
+        } else {
+            showResults();
+        }
+    }, 1000);
 }
 
 function setStatusClass(element, correct) {
