@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор вопросов викторины</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="editor-container">
+        <header>
+            <h1>Редактор вопросов</h1>
+            <a href="index.html" class="btn back-btn">← Вернуться к викторине</a>
+        </header>
+
+        <div class="editor-form">
+            <div class="form-group">
+                <label for="question-text">Вопрос:</label>
+                <textarea id="question-text" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Варианты ответов:</label>
+                <div id="answer-inputs"></div>
+                <button id="add-answer" class="btn add-answer-btn">+ Добавить ответ</button>
+            </div>
+
+            <div class="form-actions">
+                <button id="save-question" class="btn primary-btn">Сохранить вопрос</button>
+                <button id="clear-form" class="btn secondary-btn">Очистить форму</button>
+            </div>
+        </div>
+
+        <div class="saved-questions">
+            <h2>Сохраненные вопросы</h2>
+            <div id="questions-list" class="questions-list"></div>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="editor.js"></script>
+</body>
+</html>
