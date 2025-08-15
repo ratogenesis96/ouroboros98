@@ -1,3 +1,9 @@
+console.log("Загруженные вопросы:", questions); // Должен показать массив вопросов
+if (!questions || questions.length === 0) {
+    alert("Нет доступных вопросов! Добавьте вопросы в редакторе.");
+    return;
+}
+
 console.log('Script loaded');
 console.log('Admin button:', document.getElementById('admin-btn'));
 console.log('Admin panel:', document.getElementById('admin-panel'));
@@ -40,13 +46,28 @@ nextButton.addEventListener('click', () => {
 });
 
 function startGame() {
+    if (questions.length === 0) {
+        alert("Нет вопросов для викторины! Добавьте вопросы в редакторе.");
+        return;
+    }
+    
     startButton.classList.add('hide');
-    shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+    shuffledQuestions = [...questions]; // Копируем массив
     currentQuestionIndex = 0;
     questionContainerElement.classList.remove('hide');
     setNextQuestion();
     score = 0;
 }
+
+function loadQuestions() {
+    const saved = localStorage.getItem('quiz-questions');
+    if (saved) {
+        questions = JSON.parse(saved);
+    }
+    console.log("Вопросы после загрузки:", questions);
+}
+loadQuestions();
+
 
 function setNextQuestion() {
     resetState();
