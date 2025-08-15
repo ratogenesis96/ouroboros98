@@ -57,3 +57,61 @@ body {
     align-items: center;
     margin-top: 20px;
 }
+
+/* Добавьте эти стили в конец файла */
+.admin-btn {
+    background-color: #ff9800;
+    margin-left: 10px;
+}
+
+.admin-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.95);
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    box-sizing: border-box;
+}
+
+.answer-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.answer-item input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+#questions-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#questions-list li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+}
+
+.delete-question {
+    color: #f44336;
+    cursor: pointer;
+}
+
