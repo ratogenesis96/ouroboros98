@@ -1,8 +1,11 @@
-console.log("Загруженные вопросы:", questions); // Должен показать массив вопросов
-if (!questions || questions.length === 0) {
-    alert("Нет доступных вопросов! Добавьте вопросы в редакторе.");
-    return;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Доступные вопросы:", questions);
+    
+    if (!questions || questions.length === 0) {
+        alert("Вопросы не загружены. Проверьте файл questions.js");
+        return;
+    }
+
 
 console.log('Script loaded');
 console.log('Admin button:', document.getElementById('admin-btn'));
