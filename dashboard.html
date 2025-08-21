@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Личный кабинет</h1>
+            <button id="logoutBtn" class="btn">Выйти</button>
+        </header>
+
+        <div id="userInfo">
+            <h2>Добро пожаловать, <span id="userName"></span>!</h2>
+            <p>Ваша роль: <span id="userRole"></span></p>
+        </div>
+
+        <div class="dashboard-actions">
+            <a href="quiz.html" class="btn">Пройти викторину</a>
+            <a href="index.html" class="btn">На главную</a>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
