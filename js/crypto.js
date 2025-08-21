@@ -1,3 +1,6 @@
+// crypto.js - упрощенная версия для браузера
+console.log('Скрипт crypto.js загружен');
+
 // Генерация случайной соли
 function generateSalt(length = 16) {
     const array = new Uint8Array(length);
@@ -5,50 +8,43 @@ function generateSalt(length = 16) {
     return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-// Первое хэширование (SHA-256)
-async function firstHash(password, salt) {
+// Асинхронное хэширование с использованием SHA-256
+async function hashString(str) {
     const encoder = new TextEncoder();
-    const data = encoder.encode(password + salt);
+    const data = encoder.encode(str);
     const hash = await crypto.subtle.digest('SHA-256', data);
     return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Второе хэширование (bcrypt-like с использованием PBKDF2)
-async function secondHash(firstHashResult, salt, iterations = 10000) {
-    const encoder = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        encoder.encode(firstHashResult),
-        { name: 'PBKDF2' },
-        false,
-        ['deriveBits']
-    );
-
-    const derivedBits = await crypto.subtle.deriveBits(
-        {
-            name: 'PBKDF2',
-            salt: encoder.encode(salt),
-            iterations: iterations,
-            hash: 'SHA-256'
-        },
-        keyMaterial,
-        256
-    );
-
-    return Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 // Двойное хэширование пароля
 async function doubleHashPassword(password) {
-    const salt = generateSalt();
-    const firstHashResult = await firstHash(password, salt);
-    const finalHash = await secondHash(firstHashResult, salt);
-    return { hash: finalHash, salt: salt };
+    try {
+        const salt = generateSalt();
+        console.log('Соль сгенерирована');
+        
+        // Первое хэширование: пароль + соль
+        const firstHash = await hashString(password + salt);
+        console.log('Первое хэширование завершено');
+        
+        // Второе хэширование: хэш + соль
+        const secondHash = await hashString(firstHash + salt);
+        console.log('Второе хэширование завершено');
+        
+        return { hash: secondHash, salt: salt };
+    } catch (error) {
+        console.error('Ошибка хэширования:', error);
+        throw error;
+    }
 }
 
 // Проверка пароля
 async function verifyPassword(password, storedHash, storedSalt) {
-    const firstHashResult = await firstHash(password, storedSalt);
-    const testHash = await secondHash(firstHashResult, storedSalt);
-    return testHash === storedHash;
+    try {
+        const firstHash = await hashString(password + storedSalt);
+        const testHash = await hashString(firstHash + storedSalt);
+        return testHash === storedHash;
+    } catch (error) {
+        console.error('Ошибка проверки пароля:', error);
+        return false;
+    }
 }
