@@ -115,3 +115,41 @@ body {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
+.hidden { display: none; }
+
+.quiz-item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.quiz-actions {
+    margin-top: 10px;
+}
+
+.btn.danger {
+    background-color: #dc3545;
+}
+
+.question {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+
+.answer-option {
+    display: block;
+    margin: 8px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.answer-option:hover {
+    background-color: #f8f9fa;
+}
+
