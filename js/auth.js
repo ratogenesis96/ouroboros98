@@ -1,16 +1,3 @@
-// В начале каждого скрипта
-const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-if (!currentUser) {
-    window.location.href = 'login.html';
-    return;
-}
-
-// Для редактора - дополнительная проверка роли
-if (!db.canCreateQuiz(currentUser)) {
-    alert('Доступ запрещен');
-    window.location.href = 'dashboard.html';
-    return;
-}
 
 console.log('Скрипт auth.js загружен');
 
@@ -119,4 +106,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
 
