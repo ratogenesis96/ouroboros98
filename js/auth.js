@@ -18,60 +18,34 @@ document.getElementById('userRole').addEventListener('change', function() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM полностью загружен');
+    console.log('DOM loaded');
     
     const registerForm = document.getElementById('registerForm');
     const loginForm = document.getElementById('loginForm');
-    const messageDiv = document.getElementById('message');
-
-    // Обработка регистрации
-    if (registerForm) {
-        console.log('Форма регистрации найдена');
-        registerForm.addEventListener('submit', handleRegister);
-    }
-
-    // Обработка входа
-    if (loginForm) {
-        console.log('Форма входа найдена');
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-   async function handleRegister(e) {
-    e.preventDefault();
     
-    const firstname = document.getElementById('firstname').value;
-    const lastname = document.getElementById('lastname').value;
-    const login = document.getElementById('login').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const roleId = parseInt(document.getElementById('userRole').value);
-    const accessCode = document.getElementById('accessCode').value;
-
-    // Валидация
-    if (password !== confirmPassword) {
-        showMessage('Пароли не совпадают', 'error');
-        return;
+    // ✅ ДОБАВЬТЕ ПРОВЕРКУ!
+    if (registerForm) {
+        console.log('Register form found');
+        registerForm.addEventListener('submit', handleRegister);
+    } else {
+        console.log('Register form not found');
     }
-
-    // Проверка кодового слова для привилегированных ролей
-    if (roleId === 1 || roleId === 2) {
-        if (!await verifyAccessCode(accessCode, roleId)) {
-            showMessage('Неверное кодовое слово', 'error');
-            return;
-        }
+    
+    if (loginForm) {
+        console.log('Login form found');
+        loginForm.addEventListener('submit', handleLogin);
+    } else {
+        console.log('Login form not found');
     }
-
-    try {
-        const { hash: passwordHash, salt } = await doubleHashPassword(password);
-        
-        const success = await db.registerUser({
-            firstname,
-            lastname,
-            login,
-            passwordHash,
-            salt,
-            roleId: roleId
+    
+    // ✅ Проверка для выбора роли
+    const roleSelect = document.getElementById('userRole');
+    if (roleSelect) {
+        roleSelect.addEventListener('change', function() {
+            // ваш код
         });
+    }
+});
 
         if (success) {
             showMessage('Регистрация успешна!', 'success');
@@ -137,6 +111,7 @@ async function verifyAccessCode(code, roleId) {
         }
     }
 });
+
 
 
 
