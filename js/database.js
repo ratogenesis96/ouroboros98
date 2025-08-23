@@ -35,13 +35,15 @@ class Database {
 
     async registerUser(userData) {
         try {
-            console.log('Регистрация пользователя:', userData.login);
+            const users = JSON.parse(localStorage.getItem('users')) || [];
             
-            const users = JSON.parse(localStorage.getItem('users'));
-            
-            // Проверка существования пользователя
-            if (users.some(user => user.Login === userData.login)) {
-                throw new Error('Пользователь с таким логином уже существует');
+            // Проверяем, можно ли назначить выбранную роль
+            if (userData.roleId === 1) {
+                // Проверяем, нет ли уже администраторов
+                const existingAdmins = users.filter(u => u.ID_Roles === 1);
+                if (existingAdmins.length > 0) {
+                    throw new Error('Администратор уже существует');
+                }
             }
 
             const newUser = {
@@ -51,21 +53,31 @@ class Database {
                 Login: userData.login,
                 Password_hash: userData.passwordHash,
                 Salt: userData.salt,
-                ID_Roles: 3, // По умолчанию студент
-                Created_at: new Date().toISOString()
+                ID_Roles: userData.roleId,
+                Created_at: new Date().toISOString(),
+                Is_active: true
             };
             
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
             
-            console.log('Пользователь успешно зарегистрирован:', newUser.Login);
             return true;
-            
         } catch (error) {
             console.error('Ошибка регистрации:', error);
             throw error;
         }
     }
+
+    // Получение названия роли по ID
+    getRoleName(roleId) {
+        const roles = {
+            1: 'Администратор',
+            2: 'Учитель',
+            3: 'Ученик'
+        };
+        return roles[roleId] || 'Неизвестно';
+    }
+}
 
     async findUserByLogin(login) {
         try {
@@ -214,4 +226,5 @@ class Database {
 
 // Создаем глобальный экземпляр базы данных
 const db = new Database();
+
 
