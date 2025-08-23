@@ -67,16 +67,21 @@ class Database {
         }
     }
 
-    async findUserByLogin(login) {
-        try {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.Login === login);
-            return user || null;
-        } catch (error) {
-            console.error('Ошибка поиска пользователя:', error);
-            return null;
-        }
+async findUserByLogin(login) {
+    try {
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const user = users.find(u => u.Login === login);
+        return user || null;
+    } catch (error) {
+        console.error('Ошибка поиска пользователя:', error);
+        return null;
     }
+} 
+
+async userExists(login) {
+    const user = await this.findUserByLogin(login);
+    return user !== null;
+}
 
     async userExists(login) {
         const user = await this.findUserByLogin(login);
@@ -132,3 +137,4 @@ class Database {
 
 // Создаем глобальный экземпляр базы данных
 const db = new Database();
+
