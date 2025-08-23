@@ -99,7 +99,119 @@ class Database {
     async getQuizzes() {
         return JSON.parse(localStorage.getItem('quizzes'));
     }
+
+    class Database {
+    // ... существующие методы ...
+
+    // СОЗДАНИЕ ТЕСТА
+    async createQuiz(quizData, userId) {
+        try {
+            const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+            const newQuiz = {
+                ID: Date.now(),
+                Title: quizData.title,
+                Description: quizData.description,
+                ID_Creator: userId,
+                ID_Classgroup: quizData.classgroupId || null,
+                Created_at: new Date().toISOString(),
+                Is_active: true
+            };
+            
+            quizzes.push(newQuiz);
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            return newQuiz.ID;
+        } catch (error) {
+            console.error('Ошибка создания теста:', error);
+            throw error;
+        }
+    }
+
+    // ДОБАВЛЕНИЕ ВОПРОСА
+    async addQuestion(questionData, quizId) {
+        try {
+            const questions = JSON.parse(localStorage.getItem('questions')) || [];
+            const newQuestion = {
+                ID: Date.now(),
+                ID_Quiz: quizId,
+                Question_text: questionData.text,
+                Question_type: questionData.type,
+                Points: questionData.points || 1
+            };
+            
+            questions.push(newQuestion);
+            localStorage.setItem('questions', JSON.stringify(questions));
+            return newQuestion.ID;
+        } catch (error) {
+            console.error('Ошибка добавления вопроса:', error);
+            throw error;
+        }
+    }
+
+    // ДОБАВЛЕНИЕ ОТВЕТА
+    async addAnswer(answerData, questionId) {
+        try {
+            const answers = JSON.parse(localStorage.getItem('answers')) || [];
+            const newAnswer = {
+                ID: Date.now(),
+                ID_Question: questionId,
+                Answer_text: answerData.text,
+                Is_correct: answerData.isCorrect ? 1 : 0
+            };
+            
+            answers.push(newAnswer);
+            localStorage.setItem('answers', JSON.stringify(answers));
+            return newAnswer.ID;
+        } catch (error) {
+            console.error('Ошибка добавления ответа:', error);
+            throw error;
+        }
+    }
+
+    // ПОЛУЧЕНИЕ ТЕСТОВ
+    async getQuizzes() {
+        try {
+            const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            // Добавляем информацию о создателе
+            return quizzes.map(quiz => {
+                const creator = users.find(u => u.ID === quiz.ID_Creator);
+                return {
+                    ...quiz,
+                    Creator_name: creator ? `${creator.Firstname} ${creator.Lastname}` : 'Неизвестно'
+                };
+            });
+        } catch (error) {
+            console.error('Ошибка получения тестов:', error);
+            return [];
+        }
+    }
+
+    // ПОЛУЧЕНИЕ ВОПРОСОВ ТЕСТА
+    async getQuizQuestions(quizId) {
+        try {
+            const questions = JSON.parse(localStorage.getItem('questions')) || [];
+            const answers = JSON.parse(localStorage.getItem('answers')) || [];
+            
+            return questions
+                .filter(q => q.ID_Quiz === quizId)
+                .map(question => ({
+                    ...question,
+                    Answers: answers.filter(a => a.ID_Question === question.ID)
+                }));
+        } catch (error) {
+            console.error('Ошибка получения вопросов:', error);
+            return [];
+        }
+    }
+
+    // ПРОВЕРКА ПРАВ ДОСТУПА
+    canCreateQuiz(user) {
+        return user && (user.ID_Roles === 1 || user.ID_Roles === 2); // admin или teacher
+    }
+}
 }
 
 // Создаем глобальный экземпляр базы данных
 const db = new Database();
+
