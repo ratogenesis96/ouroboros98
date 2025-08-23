@@ -1,6 +1,22 @@
 
 console.log('Скрипт auth.js загружен');
 
+// обработчик выбора роли
+document.getElementById('userRole').addEventListener('change', function() {
+    const role = this.value;
+    const codeField = document.getElementById('codeField');
+    const accessCodeInput = document.getElementById('accessCode');
+    
+    if (role === '1' || role === '2') {
+        codeField.classList.remove('hidden');
+        accessCodeInput.setAttribute('required', 'true');
+    } else {
+        codeField.classList.add('hidden');
+        accessCodeInput.removeAttribute('required');
+    }
+});
+
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM полностью загружен');
     
@@ -106,5 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
 
 
