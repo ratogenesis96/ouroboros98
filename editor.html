@@ -3,46 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор тестов</title>
+    <title>Редактор викторин - Панель управления</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Редактор тестов</h1>
-            <div id="userInfo"></div>
-            <nav>
-                <a href="dashboard.html" class="btn">← Назад</a>
+            <h1>📝 Редактор викторин</h1>
+            <div id="userInfo">
+                <span id="userName"></span>
+                <a href="dashboard.html" class="btn">← Назад в кабинет</a>
                 <button id="logoutBtn" class="btn">Выйти</button>
-            </nav>
+            </div>
         </header>
 
         <div id="accessDenied" class="hidden">
-            <h2>Доступ запрещен</h2>
-            <p>Только учителя и администраторы могут создавать тесты.</p>
+            <div class="error-message">
+                <h2>⛔ Доступ запрещен</h2>
+                <p>Только учителя и администраторы могут создавать тесты.</p>
+                <a href="dashboard.html" class="btn">Вернуться в кабинет</a>
+            </div>
         </div>
 
         <div id="editorPanel" class="hidden">
-            <!-- Форма создания теста -->
-            <div class="quiz-form">
-                <h2>Создать новый тест</h2>
+            <!-- Создание нового теста -->
+            <div class="card">
+                <h2>➕ Создать новую викторину</h2>
                 <form id="createQuizForm">
                     <div class="form-group">
-                        <label for="quizTitle">Название теста:</label>
-                        <input type="text" id="quizTitle" required>
+                        <label for="quizTitle">Название викторины:</label>
+                        <input type="text" id="quizTitle" placeholder="Введите название" required>
                     </div>
                     <div class="form-group">
                         <label for="quizDescription">Описание:</label>
-                        <textarea id="quizDescription" rows="3"></textarea>
+                        <textarea id="quizDescription" placeholder="Описание викторины..." rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn">Создать тест</button>
+                    <button type="submit" class="btn primary">Создать викторину</button>
                 </form>
             </div>
 
-            <!-- Список существующих тестов -->
-            <div class="quizzes-list">
-                <h2>Мои тесты</h2>
-                <div id="quizzesContainer"></div>
+            <!-- Список моих викторин -->
+            <div class="card">
+                <h2>📋 Мои викторины</h2>
+                <div id="quizzesContainer" class="quizzes-grid">
+                    <p id="noQuizzesMessage">У вас пока нет созданных викторин</p>
+                </div>
             </div>
         </div>
     </div>
