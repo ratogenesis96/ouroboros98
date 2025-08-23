@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пройти тест</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Доступные тесты</h1>
+            <a href="dashboard.html" class="btn">← Назад</a>
+        </header>
+
+        <div id="quizzesList">
+            <h2>Выберите тест для прохождения</h2>
+            <div id="quizzesContainer"></div>
+        </div>
+
+        <div id="quizContainer" class="hidden">
+            <h2 id="quizTitle"></h2>
+            <p id="quizDescription"></p>
+            
+            <form id="quizForm">
+                <div id="questionsContainer"></div>
+                <button type="submit" class="btn">Завершить тест</button>
+            </form>
+        </div>
+
+        <div id="resultsContainer" class="hidden">
+            <h2>Результаты теста</h2>
+            <p>Ваш результат: <span id="score"></span> из <span id="maxScore"></span></p>
+            <a href="quiz.html" class="btn">Вернуться к тестам</a>
+        </div>
+    </div>
+
+    <script src="./js/database.js"></script>
+    <script src="./js/quiz.js"></script>
+</body>
+</html>
