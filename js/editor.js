@@ -1,43 +1,47 @@
-// В начале каждого скрипта
-const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-if (!currentUser) {
-    window.location.href = 'login.html';
-    return;
-}
-
-// Для редактора - дополнительная проверка роли
-if (!db.canCreateQuiz(currentUser)) {
-    alert('Доступ запрещен');
-    window.location.href = 'dashboard.html';
-    return;
-}
+console.log('Скрипт редактора загружен');
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем авторизацию
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const accessDenied = document.getElementById('accessDenied');
     const editorPanel = document.getElementById('editorPanel');
-    const userInfo = document.getElementById('userInfo');
+    const userName = document.getElementById('userName');
     const quizzesContainer = document.getElementById('quizzesContainer');
+    const noQuizzesMessage = document.getElementById('noQuizzesMessage');
 
-    // ПРОВЕРКА ПРАВ ДОСТУПА
-    if (!currentUser || !db.canCreateQuiz(currentUser)) {
+    // Если пользователь не авторизован
+    if (!currentUser) {
+        alert('Пожалуйста, войдите в систему');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Показываем имя пользователя
+    userName.textContent = `${currentUser.Firstname} ${currentUser.Lastname}`;
+
+    // Проверяем права доступа
+    if (!db.canCreateQuiz(currentUser)) {
         accessDenied.classList.remove('hidden');
         return;
     }
 
-    // ПОКАЗЫВАЕМ РЕДАКТОР
+    // Показываем панель редактора
     editorPanel.classList.remove('hidden');
-    userInfo.innerHTML = `Вы вошли как: <strong>${currentUser.Firstname} ${currentUser.Lastname}</strong>`;
 
-    // ЗАГРУЗКА ТЕСТОВ
-    loadQuizzes();
+    // Загружаем викторины пользователя
+    loadUserQuizzes();
 
-    // СОЗДАНИЕ НОВОГО ТЕСТА
+    // Обработчик создания новой викторины
     document.getElementById('createQuizForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const title = document.getElementById('quizTitle').value;
-        const description = document.getElementById('quizDescription').value;
+        const title = document.getElementById('quizTitle').value.trim();
+        const description = document.getElementById('quizDescription').value.trim();
+
+        if (!title) {
+            alert('Введите название викторины');
+            return;
+        }
 
         try {
             const quizId = await db.createQuiz({
@@ -45,60 +49,102 @@ document.addEventListener('DOMContentLoaded', function() {
                 description: description
             }, currentUser.ID);
 
-            alert('Тест создан! Теперь добавьте вопросы.');
-            // Переходим к редактированию теста
-            window.location.href = `edit-quiz.html?id=${quizId}`;
+            alert(`Викторина "${title}" создана! ID: ${quizId}`);
+            
+            // Очищаем форму
+            document.getElementById('quizTitle').value = '';
+            document.getElementById('quizDescription').value = '';
+            
+            // Обновляем список викторин
+            loadUserQuizzes();
+
         } catch (error) {
-            alert('Ошибка создания теста: ' + error.message);
+            alert('Ошибка при создании викторины: ' + error.message);
         }
     });
 
-    // ФУНКЦИЯ ЗАГРУЗКИ ТЕСТОВ
-    async function loadQuizzes() {
-        const quizzes = await db.getQuizzes();
-        const myQuizzes = quizzes.filter(q => q.ID_Creator === currentUser.ID);
+    // Обработчик выхода
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    });
 
-        if (myQuizzes.length === 0) {
-            quizzesContainer.innerHTML = '<p>У вас пока нет тестов</p>';
-            return;
-        }
+    // Функция загрузки викторин пользователя
+    async function loadUserQuizzes() {
+        try {
+            const allQuizzes = await db.getQuizzes();
+            const userQuizzes = allQuizzes.filter(quiz => quiz.ID_Creator === currentUser.ID);
+            
+            if (userQuizzes.length === 0) {
+                noQuizzesMessage.style.display = 'block';
+                quizzesContainer.innerHTML = '';
+                return;
+            }
 
-        quizzesContainer.innerHTML = myQuizzes.map(quiz => `
-            <div class="quiz-item">
-                <h3>${quiz.Title}</h3>
-                <p>${quiz.Description || 'Без описания'}</p>
-                <p><small>Создан: ${new Date(quiz.Created_at).toLocaleDateString()}</small></p>
-                <div class="quiz-actions">
-                    <a href="edit-quiz.html?id=${quiz.ID}" class="btn">Редактировать</a>
-                    <button onclick="deleteQuiz(${quiz.ID})" class="btn danger">Удалить</button>
+            noQuizzesMessage.style.display = 'none';
+            
+            quizzesContainer.innerHTML = userQuizzes.map(quiz => `
+                <div class="quiz-card">
+                    <h3>${quiz.Title}</h3>
+                    <p class="quiz-description">${quiz.Description || 'Без описания'}</p>
+                    <div class="quiz-meta">
+                        <span class="quiz-date">Создана: ${new Date(quiz.Created_at).toLocaleDateString()}</span>
+                        <span class="quiz-status">${quiz.Is_active ? '✅ Активна' : '❌ Неактивна'}</span>
+                    </div>
+                    <div class="quiz-actions">
+                        <button onclick="editQuiz(${quiz.ID})" class="btn">✏️ Редактировать</button>
+                        <button onclick="toggleQuizStatus(${quiz.ID}, ${!quiz.Is_active})" class="btn ${quiz.Is_active ? 'secondary' : 'primary'}">
+                            ${quiz.Is_active ? '❌ Деактивировать' : '✅ Активировать'}
+                        </button>
+                        <button onclick="deleteQuiz(${quiz.ID})" class="btn danger">🗑️ Удалить</button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
+
+        } catch (error) {
+            console.error('Ошибка загрузки викторин:', error);
+            quizzesContainer.innerHTML = '<p>Ошибка загрузки викторин</p>';
+        }
     }
 
-    // УДАЛЕНИЕ ТЕСТА
+    // Функция редактирования викторины
+    window.editQuiz = function(quizId) {
+        alert('Редактирование викторины ' + quizId + ' (эта функция в разработке)');
+        // window.location.href = `edit-quiz.html?id=${quizId}`;
+    };
+
+    // Функция переключения статуса викторины
+    window.toggleQuizStatus = async function(quizId, newStatus) {
+        try {
+            const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+            const quizIndex = quizzes.findIndex(q => q.ID === quizId);
+            
+            if (quizIndex !== -1) {
+                quizzes[quizIndex].Is_active = newStatus;
+                localStorage.setItem('quizzes', JSON.stringify(quizzes));
+                loadUserQuizzes();
+                alert(`Викторина ${newStatus ? 'активирована' : 'деактивирована'}`);
+            }
+        } catch (error) {
+            alert('Ошибка изменения статуса викторины');
+        }
+    };
+
+    // Функция удаления викторины
     window.deleteQuiz = async function(quizId) {
-        if (!confirm('Удалить этот тест?')) return;
+        if (!confirm('Вы уверены, что хотите удалить эту викторину? Это действие нельзя отменить.')) {
+            return;
+        }
 
         try {
             const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
             const updatedQuizzes = quizzes.filter(q => q.ID !== quizId);
             localStorage.setItem('quizzes', JSON.stringify(updatedQuizzes));
             
-            // Также удаляем вопросы и ответы
-            const questions = JSON.parse(localStorage.getItem('questions')) || [];
-            const questionIds = questions.filter(q => q.ID_Quiz === quizId).map(q => q.ID);
-            const updatedQuestions = questions.filter(q => q.ID_Quiz !== quizId);
-            localStorage.setItem('questions', JSON.stringify(updatedQuestions));
-
-            const answers = JSON.parse(localStorage.getItem('answers')) || [];
-            const updatedAnswers = answers.filter(a => !questionIds.includes(a.ID_Question));
-            localStorage.setItem('answers', JSON.stringify(updatedAnswers));
-
-            alert('Тест удален');
-            loadQuizzes();
+            loadUserQuizzes();
+            alert('Викторина удалена');
         } catch (error) {
-            alert('Ошибка удаления теста');
+            alert('Ошибка удаления викторины');
         }
     };
 });
