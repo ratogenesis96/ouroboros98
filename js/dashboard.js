@@ -28,27 +28,5 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         return roles[roleId] || 'Неизвестная роль';
     }
-
-    <div class="dashboard-actions">
-    <a href="quiz.html" class="btn">Пройти викторину</a>
-    
-    <!-- Добавьте эту кнопку -->
-    <a href="editor.html" class="btn primary" id="editorBtn">Создать викторину</a>
-    
-    <a href="index.html" class="btn">На главную</a>
-</div>
-
-<script>
-    // Скрываем кнопку, если пользователь не учитель/админ
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const editorBtn = document.getElementById('editorBtn');
-    
-    if (currentUser && (currentUser.ID_Roles === 1 || currentUser.ID_Roles === 2)) {
-        editorBtn.style.display = 'block';
-    } else {
-        editorBtn.style.display = 'none';
-    }
-</script>
-
 });
 
