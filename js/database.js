@@ -7,7 +7,6 @@ class Database {
     }
 
     initializeData() {
-        // Инициализация ролей
         if (!localStorage.getItem('roles')) {
             const roles = [
                 { ID: 1, Name: 'admin' },
@@ -18,13 +17,11 @@ class Database {
             console.log('Роли инициализированы');
         }
 
-        // Инициализация пользователей
         if (!localStorage.getItem('users')) {
             localStorage.setItem('users', JSON.stringify([]));
             console.log('Пользователи инициализированы');
         }
 
-        // Инициализация других таблиц
         const tables = ['classgroups', 'quizzes', 'questions', 'answers', 'results'];
         tables.forEach(table => {
             if (!localStorage.getItem(table)) {
@@ -37,9 +34,9 @@ class Database {
         try {
             console.log('Регистрация пользователя:', userData.login);
             
-            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const usersJson = localStorage.getItem('users');
+            const users = usersJson ? JSON.parse(usersJson) : [];
             
-            // Проверка существования пользователя
             if (users.some(user => user.Login === userData.login)) {
                 throw new Error('Пользователь с таким логином уже существует');
             }
@@ -51,7 +48,7 @@ class Database {
                 Login: userData.login,
                 Password_hash: userData.passwordHash,
                 Salt: userData.salt,
-                ID_Roles: userData.roleId || 3, // По умолчанию студент
+                ID_Roles: userData.roleId || 3,
                 Created_at: new Date().toISOString()
             };
             
@@ -67,36 +64,37 @@ class Database {
         }
     }
 
-async findUserByLogin(login) {
-    try {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(u => u.Login === login);
-        return user || null;
-    } catch (error) {
-        console.error('Ошибка поиска пользователя:', error);
-        return null;
-    }
-} 
-
-async userExists(login) {
-    const user = await this.findUserByLogin(login);
-    return user !== null;
-}
+    async findUserByLogin(login) {
+        try {
+            const usersJson = localStorage.getItem('users');
+            const users = usersJson ? JSON.parse(usersJson) : [];
+            const user = users.find(u => u.Login === login);
+            return user || null;
+        } catch (error) {
+            console.error('Ошибка поиска пользователя:', error);
+            return null;
+        }
+    }  // ← ЗАКРЫВАЮЩАЯ СКОБКА ДОБАВЛЕНА!
 
     async userExists(login) {
-        const user = await this.findUserByLogin(login);
-        return user !== null;
+        try {
+            const user = await this.findUserByLogin(login);
+            return user !== null;
+        } catch (error) {
+            console.error('Ошибка проверки пользователя:', error);
+            return false;
+        }
     }
 
-    // Проверка прав доступа
     canCreateQuiz(user) {
-        return user && (user.ID_Roles === 1 || user.ID_Roles === 2); // admin или teacher
+        return user && (user.ID_Roles === 1 || user.ID_Roles === 2);
     }
 
-    // Методы для работы с тестами
     async createQuiz(quizData, userId) {
         try {
-            const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+            const quizzesJson = localStorage.getItem('quizzes');
+            const quizzes = quizzesJson ? JSON.parse(quizzesJson) : [];
+            
             const newQuiz = {
                 ID: Date.now(),
                 Title: quizData.title,
@@ -117,10 +115,12 @@ async userExists(login) {
 
     async getQuizzes() {
         try {
-            const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
-            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const quizzesJson = localStorage.getItem('quizzes');
+            const quizzes = quizzesJson ? JSON.parse(quizzesJson) : [];
             
-            // Добавляем информацию о создателе
+            const usersJson = localStorage.getItem('users');
+            const users = usersJson ? JSON.parse(usersJson) : [];
+            
             return quizzes.map(quiz => {
                 const creator = users.find(u => u.ID === quiz.ID_Creator);
                 return {
@@ -135,6 +135,4 @@ async userExists(login) {
     }
 }
 
-// Создаем глобальный экземпляр базы данных
 const db = new Database();
-
