@@ -37,8 +37,25 @@
             <p id="message"></p>
             <p>Уже есть аккаунт? <a href="login.html">Войти</a></p>
         </div>
+        <div class="form-group">
+            <label for="userRole">Роль пользователя:</label>
+            <select id="userRole" class="form-control" required>
+                <option value="">-- Выберите роль --</option>
+                <option value="3">Ученик</option>
+        <!-- Учитель и Админ только по кодовому слову -->
+                <option value="2">Учитель (требуется код)</option>
+                <option value="1">Администратор (требуется код)</option>
+            </select>
+        </div>
+
+        <!-- Поле для кодового слова (изначально скрыто) -->
+        <div id="codeField" class="form-group hidden">
+            <label for="accessCode">Кодовое слово:</label>
+            <input type="password" id="accessCode" placeholder="Введите кодовое слово">
+        </div>
     </div>
-    
+    <!-- Добавляем поле выбора роли -->
+
        <!-- Исправьте пути к скриптам -->
     <script src="./js/crypto.js"></script>
     <script src="./js/database.js"></script>
@@ -46,5 +63,6 @@
     
 </body>
 </html>
+
 
 
