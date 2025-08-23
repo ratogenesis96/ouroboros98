@@ -28,9 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         return roles[roleId] || 'Неизвестная роль';
     }
-});
 
-<div class="dashboard-actions">
+    <div class="dashboard-actions">
     <a href="quiz.html" class="btn">Пройти викторину</a>
     
     <!-- Добавьте эту кнопку -->
@@ -50,3 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
         editorBtn.style.display = 'none';
     }
 </script>
+
+});
+
