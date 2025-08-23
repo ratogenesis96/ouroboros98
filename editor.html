@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор тестов</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Редактор тестов</h1>
+            <div id="userInfo"></div>
+            <nav>
+                <a href="dashboard.html" class="btn">← Назад</a>
+                <button id="logoutBtn" class="btn">Выйти</button>
+            </nav>
+        </header>
+
+        <div id="accessDenied" class="hidden">
+            <h2>Доступ запрещен</h2>
+            <p>Только учителя и администраторы могут создавать тесты.</p>
+        </div>
+
+        <div id="editorPanel" class="hidden">
+            <!-- Форма создания теста -->
+            <div class="quiz-form">
+                <h2>Создать новый тест</h2>
+                <form id="createQuizForm">
+                    <div class="form-group">
+                        <label for="quizTitle">Название теста:</label>
+                        <input type="text" id="quizTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quizDescription">Описание:</label>
+                        <textarea id="quizDescription" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Создать тест</button>
+                </form>
+            </div>
+
+            <!-- Список существующих тестов -->
+            <div class="quizzes-list">
+                <h2>Мои тесты</h2>
+                <div id="quizzesContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/database.js"></script>
+    <script src="./js/editor.js"></script>
+</body>
+</html>
