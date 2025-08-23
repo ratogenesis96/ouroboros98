@@ -36,49 +36,64 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', handleLogin);
     }
 
-    async function handleRegister(e) {
-        e.preventDefault();
-        console.log('Отправка формы регистрации');
-        
-        const firstname = document.getElementById('firstname').value;
-        const lastname = document.getElementById('lastname').value;
-        const login = document.getElementById('login').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
+   async function handleRegister(e) {
+    e.preventDefault();
+    
+    const firstname = document.getElementById('firstname').value;
+    const lastname = document.getElementById('lastname').value;
+    const login = document.getElementById('login').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const roleId = parseInt(document.getElementById('userRole').value);
+    const accessCode = document.getElementById('accessCode').value;
 
-        // Валидация
-        if (password !== confirmPassword) {
-            showMessage('Пароли не совпадают', 'error');
+    // Валидация
+    if (password !== confirmPassword) {
+        showMessage('Пароли не совпадают', 'error');
+        return;
+    }
+
+    // Проверка кодового слова для привилегированных ролей
+    if (roleId === 1 || roleId === 2) {
+        if (!await verifyAccessCode(accessCode, roleId)) {
+            showMessage('Неверное кодовое слово', 'error');
             return;
-        }
-
-        if (password.length < 6) {
-            showMessage('Пароль должен содержать минимум 6 символов', 'error');
-            return;
-        }
-
-        try {
-            const { hash: passwordHash, salt } = await doubleHashPassword(password);
-            
-            const success = await db.registerUser({
-                firstname,
-                lastname,
-                login,
-                passwordHash,
-                salt
-            });
-
-            if (success) {
-                showMessage('Регистрация успешна! Перенаправление...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-            }
-        } catch (error) {
-            console.error('Ошибка регистрации:', error);
-            showMessage(error.message, 'error');
         }
     }
+
+    try {
+        const { hash: passwordHash, salt } = await doubleHashPassword(password);
+        
+        const success = await db.registerUser({
+            firstname,
+            lastname,
+            login,
+            passwordHash,
+            salt,
+            roleId: roleId
+        });
+
+        if (success) {
+            showMessage('Регистрация успешна!', 'success');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }
+    } catch (error) {
+        showMessage(error.message, 'error');
+    }
+}
+
+// Функция проверки кодового слова
+async function verifyAccessCode(code, roleId) {
+    // Кодовые слова (в реальном проекте храните на сервере!)
+    const accessCodes = {
+        1: 'ADMIN_SECRET_2024', // Код для администратора
+        2: 'TEACHER_CODE_123'   // Код для учителя
+    };
+    
+    return code === accessCodes[roleId];
+}
 
     async function handleLogin(e) {
         e.preventDefault();
@@ -122,6 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
 
 
 
