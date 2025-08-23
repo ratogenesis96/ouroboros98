@@ -35,15 +35,13 @@ class Database {
 
     async registerUser(userData) {
         try {
+            console.log('Регистрация пользователя:', userData.login);
+            
             const users = JSON.parse(localStorage.getItem('users')) || [];
             
-            // Проверяем, можно ли назначить выбранную роль
-            if (userData.roleId === 1) {
-                // Проверяем, нет ли уже администраторов
-                const existingAdmins = users.filter(u => u.ID_Roles === 1);
-                if (existingAdmins.length > 0) {
-                    throw new Error('Администратор уже существует');
-                }
+            // Проверка существования пользователя
+            if (users.some(user => user.Login === userData.login)) {
+                throw new Error('Пользователь с таким логином уже существует');
             }
 
             const newUser = {
@@ -53,35 +51,25 @@ class Database {
                 Login: userData.login,
                 Password_hash: userData.passwordHash,
                 Salt: userData.salt,
-                ID_Roles: userData.roleId,
-                Created_at: new Date().toISOString(),
-                Is_active: true
+                ID_Roles: userData.roleId || 3, // По умолчанию студент
+                Created_at: new Date().toISOString()
             };
             
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
             
+            console.log('Пользователь успешно зарегистрирован:', newUser.Login);
             return true;
+            
         } catch (error) {
             console.error('Ошибка регистрации:', error);
             throw error;
         }
     }
 
-    // Получение названия роли по ID
-    getRoleName(roleId) {
-        const roles = {
-            1: 'Администратор',
-            2: 'Учитель',
-            3: 'Ученик'
-        };
-        return roles[roleId] || 'Неизвестно';
-    }
-}
-
     async findUserByLogin(login) {
         try {
-            const users = JSON.parse(localStorage.getItem('users'));
+            const users = JSON.parse(localStorage.getItem('users')) || [];
             const user = users.find(u => u.Login === login);
             return user || null;
         } catch (error) {
@@ -95,27 +83,12 @@ class Database {
         return user !== null;
     }
 
-    // Дополнительные методы для других операций
-    async addQuiz(quizData) {
-        const quizzes = JSON.parse(localStorage.getItem('quizzes'));
-        const newQuiz = {
-            ID: Date.now(),
-            ...quizData,
-            Created_at: new Date().toISOString()
-        };
-        quizzes.push(newQuiz);
-        localStorage.setItem('quizzes', JSON.stringify(quizzes));
-        return newQuiz.ID;
+    // Проверка прав доступа
+    canCreateQuiz(user) {
+        return user && (user.ID_Roles === 1 || user.ID_Roles === 2); // admin или teacher
     }
 
-    async getQuizzes() {
-        return JSON.parse(localStorage.getItem('quizzes'));
-    }
-
-    class Database {
-    // ... существующие методы ...
-
-    // СОЗДАНИЕ ТЕСТА
+    // Методы для работы с тестами
     async createQuiz(quizData, userId) {
         try {
             const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
@@ -124,7 +97,6 @@ class Database {
                 Title: quizData.title,
                 Description: quizData.description,
                 ID_Creator: userId,
-                ID_Classgroup: quizData.classgroupId || null,
                 Created_at: new Date().toISOString(),
                 Is_active: true
             };
@@ -138,48 +110,6 @@ class Database {
         }
     }
 
-    // ДОБАВЛЕНИЕ ВОПРОСА
-    async addQuestion(questionData, quizId) {
-        try {
-            const questions = JSON.parse(localStorage.getItem('questions')) || [];
-            const newQuestion = {
-                ID: Date.now(),
-                ID_Quiz: quizId,
-                Question_text: questionData.text,
-                Question_type: questionData.type,
-                Points: questionData.points || 1
-            };
-            
-            questions.push(newQuestion);
-            localStorage.setItem('questions', JSON.stringify(questions));
-            return newQuestion.ID;
-        } catch (error) {
-            console.error('Ошибка добавления вопроса:', error);
-            throw error;
-        }
-    }
-
-    // ДОБАВЛЕНИЕ ОТВЕТА
-    async addAnswer(answerData, questionId) {
-        try {
-            const answers = JSON.parse(localStorage.getItem('answers')) || [];
-            const newAnswer = {
-                ID: Date.now(),
-                ID_Question: questionId,
-                Answer_text: answerData.text,
-                Is_correct: answerData.isCorrect ? 1 : 0
-            };
-            
-            answers.push(newAnswer);
-            localStorage.setItem('answers', JSON.stringify(answers));
-            return newAnswer.ID;
-        } catch (error) {
-            console.error('Ошибка добавления ответа:', error);
-            throw error;
-        }
-    }
-
-    // ПОЛУЧЕНИЕ ТЕСТОВ
     async getQuizzes() {
         try {
             const quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
@@ -198,33 +128,7 @@ class Database {
             return [];
         }
     }
-
-    // ПОЛУЧЕНИЕ ВОПРОСОВ ТЕСТА
-    async getQuizQuestions(quizId) {
-        try {
-            const questions = JSON.parse(localStorage.getItem('questions')) || [];
-            const answers = JSON.parse(localStorage.getItem('answers')) || [];
-            
-            return questions
-                .filter(q => q.ID_Quiz === quizId)
-                .map(question => ({
-                    ...question,
-                    Answers: answers.filter(a => a.ID_Question === question.ID)
-                }));
-        } catch (error) {
-            console.error('Ошибка получения вопросов:', error);
-            return [];
-        }
-    }
-
-    // ПРОВЕРКА ПРАВ ДОСТУПА
-    canCreateQuiz(user) {
-        return user && (user.ID_Roles === 1 || user.ID_Roles === 2); // admin или teacher
-    }
-}
 }
 
 // Создаем глобальный экземпляр базы данных
 const db = new Database();
-
-
