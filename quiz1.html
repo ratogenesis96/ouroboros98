@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пройти тест</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .btn:hover:not(:disabled) {
+            background: #45a049;
+        }
+        .quiz-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .answer-option {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .answer-option:hover {
+            background-color: #f9f9f9;
+        }
+        .timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #d9534f;
+            margin: 10px 0;
+        }
+        .score-display {
+            font-size: 1.2em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .question-status {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: #ddd;
+        }
+        .status-dot.active {
+            background-color: #5bc0de;
+        }
+        .status-dot.answered {
+            background-color: #5cb85c;
+        }
+        .quiz-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Система тестирования</h1>
+            <div id="userInfo">
+                <span>Пользователь: <strong id="username"></strong></span>
+                <span>Счет: <strong id="userScore">0</strong></span>
+                <a href="#" id="logoutBtn" class="btn">Выйти</a>
+            </div>
+        </header>
+
+        <div id="quizzesList">
+            <h2>Доступные тесты</h2>
+            <div id="quizzesContainer"></div>
+        </div>
+
+        <div id="quizContainer" class="hidden">
+            <div class="quiz-info">
+                <h2 id="quizTitle"></h2>
+                <p id="quizDescription"></p>
+                <div class="score-display">Текущий счет: <span id="currentScore">0</span></div>
+                <div class="timer">Осталось времени: <span id="timeLeft">0</span> сек.</div>
+            </div>
+            
+            <div class="question-status" id="questionStatus"></div>
+            
+            <div id="currentQuestionContainer">
+                <h3 id="questionText"></h3>
+                <div id="answersContainer"></div>
+                <button id="submitAnswer" class="btn">Ответить</button>
+            </div>
+
+            <div class="navigation">
+                <button id="prevQuestion" class="btn">← Предыдущий вопрос</button>
+                <button id="nextQuestion" class="btn">Следующий вопрос →</button>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button id="finishQuiz" class="btn">Завершить тест</button>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="hidden">
+            <h2>Результаты теста</h2>
+            <p>Ваш результат: <span id="score"></span> из <span id="maxScore"></span></p>
+            <p>Начислено очков: <span id="pointsEarned"></span></p>
+            <a href="#" id="backToTests" class="btn">Вернуться к тестам</a>
+        </div>
+    </div>
+
+    <script>
+        // Текущий пользователь
+        let currentUser = null;
+        
+        // Загрузка пользователя из localStorage
+        // function loadUser() {
+        //     const userData = localStorage.getItem('currentUser');
+        //     if (userData) {
+        //         currentUser = JSON.parse(userData);
+        //         document.getElementById('username').textContent = currentUser.username;
+        //         document.getElementById('userScore').textContent = currentUser.score || 0;
+        //     } else {
+        //         // Если пользователь не авторизован, перенаправляем на страницу входа
+        //         window.location.href = 'login.html';
+        //     }
+        // }
+        
+        // // Выход из системы
+        // document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        //     e.preventDefault();
+        //     localStorage.removeItem('currentUser');
+        //     window.location.href = 'login.html';
+        // });
+        
+        // Загрузка тестов из JSON
+        async function loadQuizzes() {
+            try {
+                const response = await fetch('./js/Quiz.json');
+                if (!response.ok) {
+                    throw new Error('Не удалось загрузить тесты');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Ошибка загрузки тестов:', error);
+                alert('Ошибка загрузки тестов. Проверьте консоль для подробностей.');
+                return [];
+            }
+        }
+        
+        // Отображение списка тестов
+        async function showQuizzesList() {
+            const quizzes = await loadQuizzes();
+            
+            document.getElementById('quizzesContainer').innerHTML = quizzes.map(quiz => `
+                <div class="quiz-item">
+                    <h3>${quiz.title}</h3>
+                    <p>${quiz.description || ''}</p>
+                    <p><small>Время на вопрос: ${quiz.timePerQuestion} сек.</small></p>
+                    <button class="btn start-quiz" data-quiz-id="${quiz.id}">Начать тест</button>
+                </div>
+            `).join('');
+            
+            // Добавляем обработчики для кнопок начала теста
+            document.querySelectorAll('.start-quiz').forEach(button => {
+                button.addEventListener('click', function() {
+                    const quizId = this.getAttribute('data-quiz-id');
+                    startQuiz(quizId, quizzes);
+                });
+            });
+        }
+        
+        // Начало теста
+        function startQuiz(quizId, quizzes) {
+            const quiz = quizzes.find(q => q.id == quizId);
+            if (!quiz) {
+                alert('Тест не найден!');
+                return;
+            }
+            
+            document.getElementById('quizzesList').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            document.getElementById('quizTitle').textContent = quiz.title;
+            document.getElementById('quizDescription').textContent = quiz.description || '';
+            
+            // Инициализация состояния теста
+            const quizState = {
+                quiz: quiz,
+                currentQuestionIndex: 0,
+                score: 0,
+                userAnswers: new Array(quiz.questions.length).fill(null),
+                questionTimers: new Array(quiz.questions.length),
+                timePerQuestion: quiz.timePerQuestion || 30
+            };
+            
+            // Создаем индикаторы статуса вопросов
+            const statusContainer = document.getElementById('questionStatus');
+            statusContainer.innerHTML = '';
+            quiz.questions.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'status-dot';
+                dot.id = `statusDot${index}`;
+                statusContainer.appendChild(dot);
+            });
+            
+            // Обновляем отображение счета
+            updateScoreDisplay(quizState.score);
+            
+            // Показываем первый вопрос
+            showQuestion(quizState, 0);
+            
+            // Обработчики навигации
+            document.getElementById('prevQuestion').addEventListener('click', () => {
+                if (quizState.currentQuestionIndex > 0) {
+                    showQuestion(quizState, quizState.currentQuestionIndex - 1);
+                }
+            });
+            
+            document.getElementById('nextQuestion').addEventListener('click', () => {
+                if (quizState.currentQuestionIndex < quiz.questions.length - 1 && 
+                    quizState.userAnswers[quizState.currentQuestionIndex] !== null) {
+                    showQuestion(quizState, quizState.currentQuestionIndex + 1);
+                }
+            });
+            
+            document.getElementById('submitAnswer').addEventListener('click', () => {
+                submitAnswer(quizState);
+            });
+            
+            document.getElementById('finishQuiz').addEventListener('click', () => {
+                finishQuiz(quizState);
+            });
+            
+            // Обработчик для возврата к тестам
+            document.getElementById('backToTests').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('resultsContainer').classList.add('hidden');
+                document.getElementById('quizzesList').classList.remove('hidden');
+            });
+        }
+        
+        // Показать вопрос
+        function showQuestion(quizState, questionIndex) {
+            // Останавливаем таймер предыдущего вопроса
+            if (quizState.questionTimers[quizState.currentQuestionIndex]) {
+                clearInterval(quizState.questionTimers[quizState.currentQuestionIndex]);
+            }
+            
+            // Обновляем текущий индекс
+            quizState.currentQuestionIndex = questionIndex;
+            const question = quizState.quiz.questions[questionIndex];
+            
+            // Обновляем индикаторы статуса
+            updateStatusDots(quizState);
+            
+            // Отображаем текст вопроса
+            document.getElementById('questionText').textContent = question.text;
+            
+            // Создаем варианты ответов
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const label = document.createElement('label');
+                label.className = 'answer-option';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'answer';
+                input.value = answer.id;
+                
+                // Если ответ уже был дан, отмечаем его
+                if (quizState.userAnswers[questionIndex] === answer.id) {
+                    input.checked = true;
+                }
+                
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(answer.text));
+                answersContainer.appendChild(label);
+            });
+            
+            // Настраиваем кнопки навигации
+            document.getElementById('prevQuestion').disabled = questionIndex === 0;
+            document.getElementById('nextQuestion').disabled = 
+                questionIndex === quizState.quiz.questions.length - 1 || 
+                quizState.userAnswers[questionIndex] === null;
+            
+            // Запускаем таймер для текущего вопроса
+            startTimer(quizState, questionIndex);
+        }
+        
+        // Запуск таймера
+        function startTimer(quizState, questionIndex) {
+            const timeLeftElement = document.getElementById('timeLeft');
+            let timeLeft = quizState.timePerQuestion;
+            
+            timeLeftElement.textContent = timeLeft;
+            
+            // Очищаем предыдущий таймер, если он был
+            if (quizState.questionTimers[questionIndex]) {
+                clearInterval(quizState.questionTimers[questionIndex]);
+            }
+            
+            // Запускаем новый таймер
+            quizState.questionTimers[questionIndex] = setInterval(() => {
+                timeLeft--;
+                timeLeftElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(quizState.questionTimers[questionIndex]);
+                    // Автоматически отправляем ответ (как неправильный, поскольку время вышло)
+                    if (quizState.userAnswers[questionIndex] === null) {
+                        quizState.userAnswers[questionIndex] = 'timeout';
+                        updateStatusDots(quizState);
+                        document.getElementById('nextQuestion').disabled = false;
+                    }
+                }
+            }, 1000);
+        }
+        
+        // Отправить ответ
+        function submitAnswer(quizState) {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            const questionIndex = quizState.currentQuestionIndex;
+            const question = quizState.quiz.questions[questionIndex];
+            
+            if (!selectedAnswer) {
+                alert('Пожалуйста, выберите ответ');
+                return;
+            }
+            
+            // Сохраняем ответ пользователя
+            quizState.userAnswers[questionIndex] = selectedAnswer.value;
+            
+            // Проверяем, правильный ли ответ
+            const isCorrect = question.answers.find(a => a.id == selectedAnswer.value)?.correct;
+            
+            if (isCorrect) {
+                quizState.score += question.points || 1;
+                updateScoreDisplay(quizState.score);
+            }
+            
+            // Останавливаем таймер
+            clearInterval(quizState.questionTimers[questionIndex]);
+            
+            // Обновляем индикатор статуса
+            updateStatusDots(quizState);
+            
+            // Активируем кнопку следующего вопроса
+            document.getElementById('nextQuestion').disabled = false;
+        }
+        
+        // Обновить индикаторы статуса вопросов
+        function updateStatusDots(quizState) {
+            quizState.userAnswers.forEach((answer, index) => {
+                const dot = document.getElementById(`statusDot${index}`);
+                if (index === quizState.currentQuestionIndex) {
+                    dot.className = 'status-dot active';
+                } else if (answer !== null) {
+                    dot.className = 'status-dot answered';
+                } else {
+                    dot.className = 'status-dot';
+                }
+            });
+        }
+        
+        // Обновить отображение счета
+        function updateScoreDisplay(score) {
+            document.getElementById('currentScore').textContent = score;
+        }
+        
+        // Завершить тест
+        function finishQuiz(quizState) {
+            // Останавливаем все таймеры
+            quizState.questionTimers.forEach(timer => {
+                if (timer) clearInterval(timer);
+            });
+            
+            // Вычисляем максимальный возможный балл
+            const maxScore = quizState.quiz.questions.reduce((sum, q) => sum + (q.points || 1), 0);
+            
+            // Показываем результаты
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            document.getElementById('score').textContent = quizState.score;
+            document.getElementById('maxScore').textContent = maxScore;
+            document.getElementById('pointsEarned').textContent = quizState.score;
+            
+            // Сохраняем результаты
+            saveResults(quizState, maxScore);
+        }
+        
+        // Сохранить результаты
+        function saveResults(quizState, maxScore) {
+            // Обновляем счет пользователя
+            if (!currentUser.score) currentUser.score = 0;
+            currentUser.score += quizState.score;
+            
+            // Сохраняем обновленного пользователя
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // Обновляем отображение счета в заголовке
+            document.getElementById('userScore').textContent = currentUser.score;
+            
+            // Здесь можно добавить сохранение результатов в базу данных, если необходимо
+            console.log('Результаты теста сохранены:', {
+                userId: currentUser.id,
+                quizId: quizState.quiz.id,
+                score: quizState.score,
+                maxScore: maxScore,
+                answers: quizState.userAnswers
+            });
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUser();
+            showQuizzesList();
+        });
+    </script>
+</body>
+</html>
