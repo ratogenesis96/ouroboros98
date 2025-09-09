@@ -167,24 +167,24 @@
         let currentUser = null;
         
         // Загрузка пользователя из localStorage
-        // function loadUser() {
-        //     const userData = localStorage.getItem('currentUser');
-        //     if (userData) {
-        //         currentUser = JSON.parse(userData);
-        //         document.getElementById('username').textContent = currentUser.username;
-        //         document.getElementById('userScore').textContent = currentUser.score || 0;
-        //     } else {
-        //         // Если пользователь не авторизован, перенаправляем на страницу входа
-        //         window.location.href = 'login.html';
-        //     }
-        // }
+         function loadUser() {
+             const userData = localStorage.getItem('currentUser');
+             if (userData) {
+                 currentUser = JSON.parse(userData);
+                 document.getElementById('username').textContent = currentUser.username;
+                 document.getElementById('userScore').textContent = currentUser.score || 0;
+             } else {
+                 // Если пользователь не авторизован, перенаправляем на страницу входа
+                 window.location.href = 'login.html';
+             }
+         }
         
         // // Выход из системы
-        // document.getElementById('logoutBtn').addEventListener('click', function(e) {
-        //     e.preventDefault();
-        //     localStorage.removeItem('currentUser');
-        //     window.location.href = 'login.html';
-        // });
+         document.getElementById('logoutBtn').addEventListener('click', function(e) {
+             e.preventDefault();
+             localStorage.removeItem('currentUser');
+             window.location.href = 'login.html';
+         });
         
         // Загрузка тестов из JSON
         async function loadQuizzes() {
