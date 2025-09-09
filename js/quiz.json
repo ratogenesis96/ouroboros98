@@ -1,0 +1,69 @@
+[
+  {
+    "id": 1,
+    "title": "Тест по математике",
+    "description": "Проверьте свои знания в области математики",
+    "timePerQuestion": 30,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Сколько будет 2 + 2 * 2?",
+        "points": 2,
+        "answers": [
+          {"id": 1, "text": "6", "correct": true},
+          {"id": 2, "text": "8", "correct": false},
+          {"id": 3, "text": "4", "correct": false}
+        ]
+      },
+      {
+        "id": 2,
+        "text": "Чему равен квадратный корень из 144?",
+        "points": 1,
+        "answers": [
+          {"id": 1, "text": "12", "correct": true},
+          {"id": 2, "text": "14", "correct": false},
+          {"id": 3, "text": "24", "correct": false},
+          {"id": 4, "text": "72", "correct": false}
+        ]
+      },
+      {
+        "id": 3,
+        "text": "Что такое простое число?",
+        "points": 3,
+        "answers": [
+          {"id": 1, "text": "Число, которое делится только на 1 и на себя", "correct": true},
+          {"id": 2, "text": "Число, которое делится на 2", "correct": false},
+          {"id": 3, "text": "Любое нечетное число", "correct": false}
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Тест по географии",
+    "description": "Проверьте свои знания в области географии",
+    "timePerQuestion": 20,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Какая самая длинная река в мире?",
+        "points": 2,
+        "answers": [
+          {"id": 1, "text": "Нил", "correct": false},
+          {"id": 2, "text": "Амазонка", "correct": true},
+          {"id": 3, "text": "Миссисипи", "correct": false}
+        ]
+      },
+      {
+        "id": 2,
+        "text": "Сколько океанов на Земле?",
+        "points": 1,
+        "answers": [
+          {"id": 1, "text": "4", "correct": false},
+          {"id": 2, "text": "5", "correct": true},
+          {"id": 3, "text": "6", "correct": false}
+        ]
+      }
+    ]
+  }
+]
